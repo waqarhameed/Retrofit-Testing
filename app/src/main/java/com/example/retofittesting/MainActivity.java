@@ -2,9 +2,11 @@ package com.example.retofittesting;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.internal.$Gson$Preconditions;
 
 import java.util.List;
@@ -27,19 +29,21 @@ public class MainActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://jsonplaceholder.typicode.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().serializeNulls().create()))
                 .build();
 
         JsonPlaceHolderApi jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
         Call<List<Post>> call = jsonPlaceHolderApi.getPosts();
 
         call.enqueue(new Callback<List<Post>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
                 if (!response.isSuccessful()) {
                     textViewResult.setText("Code : " + response.code());
                 }
                 List<Post> posts = response.body();
+                assert posts != null;
                 for (Post post : posts) {
                     String content = "";
                     content += "ID " + post.getId() + "\n";
